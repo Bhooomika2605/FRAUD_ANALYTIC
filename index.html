@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+        }
+
+        body {
+            background-color: #f5f6fa;
+        }
+
+        .navbar {
+            background-color: var(--primary);
+            padding: 1rem 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+            margin-left: 2rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar-menu a:hover {
+            background-color: var(--secondary);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-title {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .alerts-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .alert-item {
+            padding: 1rem;
+            border-left: 4px solid var(--danger);
+            background: #fff5f5;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            color: var(--danger);
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Fraud Detection System</div>
+        <div class="navbar-menu">
+            <a href="document.html" class="active">Document Verification</a>
+            <a href="Fraud.html">Fraud Analytics</a>
+            
+            <a href="admin.html">Admin Panel</a>
+            <a href="claim.html">Claims Portal</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search for claims, users, or case IDs...">
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Total Fraud Detected</div>
+                <div class="stat-value">$847,392</div>
+                <div class="stat-trend trend-up">↑ 12.5% vs last month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Active Cases</div>
+                <div class="stat-value">127</div>
+                <div class="stat-trend trend-down">↓ 3.2% vs last month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Average Risk Score</div>
+                <div class="stat-value">76.4</div>
+                <div class="stat-trend trend-up">↑ 5.8% vs last month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Prevention Rate</div>
+                <div class="stat-value">94.2%</div>
+                <div class="stat-trend trend-up">↑ 2.1% vs last month</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <canvas id="fraudTrends"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="riskDistribution"></canvas>
+            </div>
+        </div>
+
+        <div class="alerts-container">
+            <h2>Real-time Alerts</h2>
+            <div class="alert-item">
+                <div class="alert-title">High-Risk Transaction Detected</div>
+                <div class="alert-content">Unusual pattern detected in claim #28392 - Multiple submissions from same IP</div>
+                <div class="alert-time">2 minutes ago</div>
+            </div>
+            <div class="alert-item">
+                <div class="alert-title">Suspicious Activity Alert</div>
+                <div class="alert-content">Multiple failed authentication attempts for user ID: 47293</div>
+                <div class="alert-time">15 minutes ago</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fraud Trends Chart
+        const fraudTrendsCtx = document.getElementById('fraudTrends').getContext('2d');
+        new Chart(fraudTrendsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Fraud Cases',
+                    data: [65, 59, 80, 81, 56, 55],
+                    fill: false,
+                    borderColor: '#3498db',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Fraud Trends Over Time'
+                    }
+                }
+            }
+        });
+
+        // Risk Distribution Chart
+        const riskDistributionCtx = document.getElementById('riskDistribution').getContext('2d');
+        new Chart(riskDistributionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Low', 'Medium', 'High', 'Critical'],
+                datasets: [{
+                    label: 'Risk Distribution',
+                    data: [30, 45, 15, 10],
+                    backgroundColor: [
+                        '#2ecc71',
+                        '#f1c40f',
+                        '#e67e22',
+                        '#e74c3c'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Risk Score Distribution'
+                    }
+                }
+            }
+        });
+
+        // Simple search functionality
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('input', (e) => {
+            // Add your search logic here
+            console.log('Searching for:', e.target.value);
+        });
+    </script>
+</body>
+</html>

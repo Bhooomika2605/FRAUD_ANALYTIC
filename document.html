@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Document Verification Module</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --light: #f5f6fa;
+            --border: #e1e1e1;
+        }
+
+        body {
+            background-color: var(--light);
+            padding: 2rem;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+
+        .verification-module {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+        .upload-section {
+            border: 2px dashed #ccc;
+            padding: 3rem;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            background: var(--light);
+        }
+
+        .upload-section.drag-over {
+            border-color: var(--accent);
+            background: rgba(52, 152, 219, 0.1);
+            transform: scale(1.01);
+        }
+
+        .upload-section.processing {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .upload-info {
+            margin: 1rem 0;
+            color: var(--secondary);
+        }
+
+        .file-list {
+            margin-top: 1.5rem;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .file-item:hover {
+            background: var(--light);
+        }
+
+        .file-info {
+            flex: 1;
+            margin-left: 1rem;
+        }
+
+        .file-name {
+            font-weight: 500;
+        }
+
+        .file-size {
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+
+        .file-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .verification-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .analysis-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .analysis-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .analysis-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .progress-container {
+            margin: 1.5rem 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .result-item:hover {
+            background-color: var(--light);
+            border-radius: 8px;
+        }
+
+        .result-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .result-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: var(--light);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .confidence-meter {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: #e1e1e1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .chart-container {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: 8px;
+            height: 300px;
+        }
+
+        .metadata-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .metadata-item {
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .metadata-label {
+            font-size: 0.875rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metadata-value {
+            font-weight: 500;
+        }
+
+        .action-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2);
+        }
+
+        .action-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .timeline {
+            margin-top: 1.5rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-time {
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+
+        @media (max-width: 1200px) {
+            .verification-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .metadata-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Document Verification System</h1>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <div class="stat-value">98.7%</div>
+                    <div class="stat-label">Accuracy Rate</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2.3s</div>
+                    <div class="stat-label">Avg. Processing Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">1,234</div>
+                    <div class="stat-label">Documents Processed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="verification-module">
+            <div class="upload-section" id="uploadArea">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h2>Document Upload</h2>
+                <p class="upload-info">Drag and drop your documents here or click to browse</p>
+                <div class="upload-types">
+                    <span class="status-badge">PDF   JPG      PNG</span>
+        
+                </div>
+                <input type="file" id="fileUpload" style="display: none;" multiple accept=".pdf,.jpg,.jpeg,.png">
+                <div class="file-list" id="fileList"></div>
+            </div>
+
+            <div class="verification-grid">
+                <div class="analysis-section" id="ocrSection">
+                    <div class="analysis-header">
+                        <div class="analysis-title">
+                            <div class="analysis-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div>
+                                <h3>Document Analysis</h3>
+                                <p>OCR and Content Verification</p>
+                            </div>
+                        </div>
+                        <button class="action-button" id="refreshOcr">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh Analysis
+                        </button>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Analysis Progress</span>
+                            <span id="ocrProgressText">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ocrProgress"></div>
+                        </div>
+                    </div>
+
+                    <div id="ocrResults"></div>
+
+                    <div class="metadata-section">
+                        <h4>Document Details</h4>
+                        <div class="metadata-grid" id="documentMetadata"></div>
+                    </div>
+                </div>
+
+                <div class="analysis-section" id="forgerySection">
+                    <div class="analysis-header">
+                        <div class="analysis-title">
+                            <div class="analysis-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <h3>Forgery Detection</h3>
+                                <p>Advanced Security Analysis</p>
+                            </div>
+                        </div>
+                        <button class="action-button" id="refreshForgery">
+                            <i class="fas fa-microscope"></i>
+                            Analyze Security
+                        </button>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Security Scan Progress</span>
+                            <span id="forgeryProgressText">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="forgeryProgress"></div>
+                        </div>
+                    </div>
+
+                    <div id="forgeryResults"></div>
+
+                    <div class="chart-container">
+                        <canvas id="signatureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-section" id="aiSection">
+                <div class="analysis-header">
+                    <div class="analysis-title">
+                        <div class="analysis-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div>
+                            <h3>AI Analysis Summary</h3>
+                            <p>Machine Learning Verification Results</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="aiResults"></div>
+
+                <div class="timeline" id="analysisTimeline">
+                    <h4>Analysis Timeline</h4>
+                    <!-- Timeline items will be added dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Utility functions
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function createStatusBadge(status, icon) {
+            const statusClass = status.toLowerCase();
+            return `<span class="status-badge status-${statusClass}">
+                <i class="fas fa-${icon}"></i> ${status}
+            </span>`;
+        }
+
+        // File handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileUpload = document.getElementById('fileUpload');
+        const fileList = document.getElementById('fileList');
+
+        uploadArea.addEventListener('click', () => fileUpload.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+        fileUpload.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        async function handleFiles(files) {
+            uploadArea.classList.add('processing');
+            fileList.innerHTML = '';
+            
+            for (const file of files) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <i class="fas fa-file"></i>
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${formatFileSize(file.size)}</div>
+                    </div>
+                    <div class="file-status">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Processing...</span>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+                addTimelineEvent('File Upload', `Started processing ${file.name}`);
+            }
+
+            await processDocuments();
+            updateFileStatus();
+            uploadArea.classList.remove('processing');
+        }
+
+        function updateFileStatus() {
+            const fileItems = fileList.querySelectorAll('.file-item');
+            fileItems.forEach(item => {
+                const status = item.querySelector('.file-status');
+                status.innerHTML = createStatusBadge('Success', 'check-circle');
+            });
+        }
+
+        // Analysis processing
+        async function processDocuments() {
+            const sections = ['ocr', 'forgery', 'ai'];
+            for (const section of sections) {
+                await runAnalysis(section);
+                addTimelineEvent('Analysis', `Completed ${section.toUpperCase()} analysis`);
+            }
+        }
+
+        async function runAnalysis(section) {
+            const progress = document.getElementById(`${section}Progress`);
+            const progressText = document.getElementById(`${section}ProgressText`);
+            const results = document.getElementById(`${section}Results`);
+            
+            progress.style.width = '0%';
+            results.innerHTML = '';
+
+            // Simulate processing
+            for (let i = 0; i <= 100; i += 10) {
+                progress.style.width = `${i}%`;
+                progressText.textContent = `${i}%`;
+                await sleep(100);
+            }
+
+            // Generate results based on section
+            switch(section) {
+                case 'ocr':
+                    generateOcrResults();
+                    generateDocumentMetadata();
+                    break;
+                case 'forgery':
+                    generateForgeryResults();
+                    initSignatureChart();
+                    break;
+                case 'ai':
+                    generateAiResults();
+                    break;
+            }
+        }
+
+        function generateOcrResults() {
+            const results = document.getElementById('ocrResults');
+            results.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">
+                        <div class="result-icon"><i class="fas fa-file-alt"></i></div>
+                        <div>
+                            <div>Text Extraction</div>
+                            <div class="confidence-meter">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 95%"></div>
+                                </div>
+                                <span>95% Confidence</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${createStatusBadge('Success', 'check')}
+                </div>
+                <div class="result-item">
+                    <div class="result-label">
+                        <div class="result-icon"><i class="fas fa-check-double"></i></div>
+                        <div>
+                            <div>Data Validation</div>
+                            <div class="confidence-meter">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 92%"></div>
+                                </div>
+                                <span>92% Confidence</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${createStatusBadge('Success', 'check-double')}
+                </div>
+            `;
+        }
+
+        function generateDocumentMetadata() {
+            const metadata = document.getElementById('documentMetadata');
+            metadata.innerHTML = `
+                <div class="metadata-item">
+                    <div class="metadata-label">Document Type</div>
+                    <div class="metadata-value">Insurance Claim Form</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Creation Date</div>
+                    <div class="metadata-value">2024-02-23</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Last Modified</div>
+                    <div class="metadata-value">2024-02-23</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">File Size</div>
+                    <div class="metadata-value">1.2 MB</div>
+                </div>
+            `;
+        }
+
+        function generateForgeryResults() {
+            const results = document.getElementById('forgeryResults');
+            results.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">
+                        <div class="result-icon"><i class="fas fa-image"></i></div>
+                        <div>
+                            <div>Image Analysis</div>
+                            <div class="confidence-meter">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 98%"></div>
+                                </div>
+                                <span>98% Confidence</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${createStatusBadge('Success', 'shield-check')}
+                </div>
+                <div class="result-item">
+                    <div class="result-label">
+                        <div class="result-icon"><i class="fas fa-fingerprint"></i></div>
+                        <div>
+                            <div>Digital Signature</div>
+                            <div class="confidence-meter">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 96%"></div>
+                                </div>
+                                <span>96% Confidence</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${createStatusBadge('Success', 'check-circle')}
+                </div>
+            `;
+        }
+
+        function generateAiResults() {
+            const results = document.getElementById('aiResults');
+            results.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">
+                        <div class="result-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div>
+                            <div>Document Authenticity</div>
+                            <div class="confidence-meter">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 97%"></div>
+                                </div>
+                                <span>97% Confidence</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${createStatusBadge('Success', 'check-circle')}
+                </div>
+                <div class="result-item">
+                    <div class="result-label">
+                        <div class="result-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div>
+                            <div>Risk Assessment</div>
+                            <div class="confidence-meter">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 95%"></div>
+                                </div>
+                                <span>95% Confidence</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${createStatusBadge('Low Risk', 'shield-alt')}
+                </div>
+            `;
+        }
+
+        function addTimelineEvent(type, description) {
+            const timeline = document.getElementById('analysisTimeline');
+            const timelineItem = document.createElement('div');
+            timelineItem.className = 'timeline-item';
+            timelineItem.innerHTML = `
+                <div class="timeline-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-time">${new Date().toLocaleTimeString()}</div>
+                    <div><strong>${type}:</strong> ${description}</div>
+                </div>
+            `;
+            timeline.appendChild(timelineItem);
+        }
+
+        function initSignatureChart() {
+            const ctx = document.getElementById('signatureChart').getContext('2d');
+            
+            if (window.signatureChart) {
+                window.signatureChart.destroy();
+            }
+
+            window.signatureChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0%', '20%', '40%', '60%', '80%', '100%'],
+                    datasets: [{
+                        label: 'Signature Match Analysis',
+                        data: [85, 88, 92, 90, 93, 92],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Confidence Score (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Analysis Progress'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize refresh buttons
+        document.getElementById('refreshOcr').addEventListener('click', () => runAnalysis('ocr'));
+        document.getElementById('refreshForgery').addEventListener('click', () => runAnalysis('forgery'));
+
+        // Initialize the page
+        initSignatureChart();
+    </script>
+</body>
+</html>

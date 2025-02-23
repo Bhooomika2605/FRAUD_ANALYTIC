@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims Submission Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .language-selector {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid white;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+        }
+
+        .language-selector option {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .claim-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section h2 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e1e1;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 4px;
+            background: var(--light);
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+        }
+
+        .upload-area i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .status-tracker {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .status-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        .status-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e1e1e1;
+            z-index: 1;
+        }
+
+        .step {
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            background: #e1e1e1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+        }
+
+        .step.active .step-circle {
+            background: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+
+        @media (max-width: 768px) {
+            .claim-form {
+                padding: 1rem;
+            }
+
+            .status-steps {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .step {
+                margin-bottom: 1rem;
+            }
+
+            .status-steps::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Claims Submission Portal</h1>
+        <select class="language-selector" id="languageSelect">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="zh">中文</option>
+        </select>
+    </header>
+
+    <div class="container">
+        <form class="claim-form" id="claimForm">
+            <div class="form-section">
+                <h2>Personal Information</h2>
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Claim Details</h2>
+                <div class="form-group">
+                    <label for="claimType">Type of Claim</label>
+                    <select id="claimType" class="form-control" required>
+                        <option value="">Select claim type</option>
+                        <option value="auto">Auto Insurance</option>
+                        <option value="health">Health Insurance</option>
+                        <option value="property">Property Insurance</option>
+                        <option value="life">Life Insurance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="incidentDate">Date of Incident</label>
+                    <input type="date" id="incidentDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description of Incident</label>
+                    <textarea id="description" class="form-control" rows="4" required></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Document Upload</h2>
+                <div class="upload-area" id="uploadArea">
+                    <i>📎</i>
+                    <p>Drag and drop your documents here or click to browse</p>
+                    <p class="text-muted">Accepted formats: PDF, JPG, PNG (Max 10MB)</p>
+                    <input type="file" id="fileUpload" multiple style="display: none;">
+                </div>
+                <div id="uploadedFiles"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Claim</button>
+        </form>
+
+        <div class="status-tracker">
+            <h2>Claim Status</h2>
+            <div class="status-steps">
+                <div class="step active">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Submitted</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Under Review</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Processing</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Completed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Language Selector
+        const languageSelect = document.getElementById('languageSelect');
+        languageSelect.addEventListener('change', (e) => {
+            // Here you would implement language switching logic
+            console.log('Language changed to:', e.target.value);
+        });
+
+        // File Upload Handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileUpload = document.getElementById('fileUpload');
+        const uploadedFiles = document.getElementById('uploadedFiles');
+
+        uploadArea.addEventListener('click', () => {
+            fileUpload.click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#3498db';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ccc';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileUpload.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File too large. Maximum size is 10MB.');
+                    return;
+                }
+                
+                const fileDiv = document.createElement('div');
+                fileDiv.innerHTML = `
+                    <p>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</p>
+                `;
+                uploadedFiles.appendChild(fileDiv);
+            });
+        }
+
+        // Form Submission
+        const claimForm = document.getElementById('claimForm');
+        claimForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Here you would implement form submission logic
+            alert('Claim submitted successfully!');
+        });
+    </script>
+</body>
+</html>

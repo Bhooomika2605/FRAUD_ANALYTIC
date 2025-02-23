@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Fraud Detection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --light: #f5f6fa;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: calc(100vh - 64px);
+        }
+
+        .sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-right: 1px solid #eee;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .nav-item:hover {
+            background: var(--light);
+        }
+
+        .nav-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e1e1;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slider {
+            flex: 1;
+        }
+
+        .slider-value {
+            width: 60px;
+            text-align: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table th {
+            background: var(--light);
+            font-weight: 500;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .audit-log {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+            font-size: 0.875rem;
+        }
+
+        .log-entry:hover {
+            background: var(--light);
+        }
+
+        .log-time {
+            color: #666;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Admin Panel</h1>
+        <div class="admin-info">
+            <span>Admin: Jane Doe</span>
+            <button class="btn btn-danger">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="nav-item active">AI Model Configuration</div>
+            <div class="nav-item">System Settings</div>
+            <div class="nav-item">User Management</div>
+            <div class="nav-item">Audit Logs</div>
+            <div class="nav-item">API Integration</div>
+            <div class="nav-item">Security Settings</div>
+        </aside>
+
+        <main class="main-content">
+            <div class="card">
+                <h2>AI Model Configuration</h2>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Risk Score Threshold</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" min="0" max="100" value="75">
+                            <span class="slider-value">75%</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confidence Level</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" min="0" max="100" value="90">
+                            <span class="slider-value">90%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Model Version</label>
+                    <select class="form-control">
+                        <option>v2.1.0 (Current)</option>
+                        <option>v2.0.0</option>
+                        <option>v1.9.0</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary">Save Changes</button>
+            </div>
+
+            <div class="card">
+                <h2>System Settings</h2>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Data Retention Period (days)</label>
+                        <input type="number" class="form-control" value="90">
+                    </div>
+                    <div class="form-group">
+                        <label>Maximum File Size (MB)</label>
+                        <input type="number" class="form-control" value="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>API Endpoint</label>
+                    <input type="text" class="form-control" value="https://api.frauddetection.com/v2">
+                </div>
+                <button class="btn btn-primary">Update Settings</button>
+            </div>
+
+            <div class="card">
+                <h2>User Management</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Last Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>John Smith</td>
+                            <td>Investigator</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td>2 minutes ago</td>
+                            <td>
+                                <button class="btn btn-primary">Edit</button>
+                                <button class="btn btn-danger">Disable</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Sarah Johnson</td>
+                            <td>Manager</td>
+                            <td><span class="badge badge-warning">Away</span></td>
+                            <td>1 hour ago</td>
+                            <td>
+                                <button class="btn btn-primary">Edit</button>
+                                <button class="btn btn-danger">Disable</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2>Audit Logs</h2>
+                <div class="audit-log">
+                    <div class="log-entry">
+                        <div class="log-time">2024-02-23 15:30:22</div>
+                        <div>Risk score threshold updated to 75% by Jane Doe</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-time">2024-02-23 15:28:15</div>
+                        <div>New user account created: Mike Wilson (Investigator)</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-time">2024-02-23 15:25:00</div>
+                        <div>System settings updated: Data retention period changed to 90 days</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-time">2024-02-23 15:20:45</div>
+                        <div>API endpoint configuration updated</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Slider functionality
+        document.querySelectorAll('.slider').forEach(slider => {
+            const valueDisplay = slider.nextElementSibling;
+            slider.addEventListener('input', (e) => {
+                valueDisplay.textContent = `${e.target.value}%`;
+            });
+        });
+
+        // Navigation functionality
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Form submission handling
+        document.querySelectorAll('.btn-primary').forEach(button => {
+            button.addEventListener('click', () => {
+                // Here you would implement the actual save/update functionality
+                console.log('Changes saved');
+            });
+        });
+    </script>
+</body>
+</html>
